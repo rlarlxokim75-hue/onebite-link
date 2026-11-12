@@ -3,6 +3,60 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { bookmarks, folders } from "@/lib/mock-data";
+import { fetchOpenGraph, OpenGraphError } from "@/lib/og";
+
+export type BookmarkFormState = {
+  status: "idle" | "error";
+  message?: string;
+  /** 에러 시 입력값 복원용 */
+  url?: string;
+  folderId?: string;
+};
+
+export async function createBookmark(
+  _prev: BookmarkFormState,
+  formData: FormData,
+): Promise<BookmarkFormState> {
+  const rawUrl = String(formData.get("url") ?? "");
+  const rawFolderId = String(formData.get("folderId") ?? "");
+  const keep = { url: rawUrl, folderId: rawFolderId };
+
+  let folderId: number | null = null;
+  if (rawFolderId) {
+    folderId = Number(rawFolderId);
+    if (!folders.some((folder) => folder.id === folderId)) {
+      return { status: "error", message: "선택한 폴더가 없어요", ...keep };
+    }
+  }
+
+  let og;
+  try {
+    og = await fetchOpenGraph(rawUrl);
+  } catch (error) {
+    const message =
+      error instanceof OpenGraphError
+        ? error.message
+        : "링크 정보를 가져오지 못했어요";
+    return { status: "error", message, ...keep };
+  }
+
+  // 목업 단계: 서버 메모리의 배열 맨 앞에 추가 (최신순)
+  const nextId = Math.max(0, ...bookmarks.map((bookmark) => bookmark.id)) + 1;
+  bookmarks.unshift({
+    id: nextId,
+    title: og.title,
+    url: og.url,
+    description: og.description,
+    thumbnail: og.thumbnail,
+    folderId,
+    createdAt: new Date().toLocaleDateString("sv-SE", {
+      timeZone: "Asia/Seoul",
+    }), // YYYY-MM-DD
+  });
+
+  revalidatePath("/", "layout");
+  redirect(folderId ? `/folder/${folderId}` : "/");
+}
 
 export type FolderFormState = {
   status: "idle" | "success" | "error";

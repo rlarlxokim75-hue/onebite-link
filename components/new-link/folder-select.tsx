@@ -2,16 +2,17 @@ import type { Folder } from "@/lib/types";
 
 type Props = {
   folders: Folder[];
+  defaultValue?: string;
 };
 
-export default function FolderSelect({ folders }: Props) {
+export default function FolderSelect({ folders, defaultValue = "" }: Props) {
   return (
     <label className="flex flex-col gap-2">
       <span className="text-[14px] font-bold text-[var(--text-sub)]">폴더</span>
       <div className="relative">
         <select
           name="folderId"
-          defaultValue=""
+          defaultValue={defaultValue}
           className="field w-full appearance-none rounded-xl bg-[var(--input-bg)] py-3.5 pr-11 pl-4 text-[17px] text-[var(--text)]"
         >
           <option value="">폴더 없음</option>

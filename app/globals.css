@@ -49,6 +49,14 @@ body {
   transform: scale(0.98);
 }
 
+/* 카드 hover 시 썸네일 살짝 확대 */
+.thumb-img {
+  transition: transform 0.3s ease;
+}
+.card-hover:hover .thumb-img {
+  transform: scale(1.03);
+}
+
 .btn-primary {
   transition: background-color 0.2s ease, transform 0.2s ease;
 }
