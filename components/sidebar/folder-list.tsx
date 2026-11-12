@@ -1,5 +1,5 @@
 import type { Folder } from "@/lib/types";
-import SidebarItem from "./sidebar-item";
+import FolderItem from "./folder-item";
 
 type Props = {
   folders: Folder[];
@@ -18,10 +18,9 @@ export default function FolderList({ folders, countByFolder }: Props) {
         <ul className="flex flex-col gap-1">
           {folders.map((folder) => (
             <li key={folder.id}>
-              <SidebarItem
-                label={folder.name}
+              <FolderItem
+                folder={folder}
                 count={countByFolder[folder.id] ?? 0}
-                href={`/folder/${folder.id}`}
               />
             </li>
           ))}

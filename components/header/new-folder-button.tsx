@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
+import Modal from "@/components/common/modal";
 import NewFolderForm from "./new-folder-form";
 
 export default function NewFolderButton() {
@@ -27,17 +28,9 @@ export default function NewFolderButton() {
         새 폴더
       </button>
 
-      <dialog
-        ref={dialogRef}
-        aria-labelledby="new-folder-title"
-        // 바깥(배경) 클릭 시 닫기
-        onClick={(e) => {
-          if (e.target === e.currentTarget) close();
-        }}
-        className="modal m-auto w-[calc(100%-40px)] max-w-[400px] rounded-2xl bg-[var(--card)] p-0 text-[var(--text)] shadow-[var(--shadow-modal)]"
-      >
+      <Modal ref={dialogRef} labelledBy="new-folder-title" onClose={close}>
         <NewFolderForm key={formKey} onCancel={close} onSuccess={close} />
-      </dialog>
+      </Modal>
     </>
   );
 }

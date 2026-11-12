@@ -1,7 +1,8 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { folders } from "@/lib/mock-data";
+import { redirect } from "next/navigation";
+import { bookmarks, folders } from "@/lib/mock-data";
 
 export type CreateFolderState = {
   status: "idle" | "success" | "error";
@@ -36,6 +37,36 @@ export async function createFolder(
 
   // 사이드바(레이아웃)와 새 링크 폼의 폴더 목록을 갱신
   revalidatePath("/", "layout");
+
+  return { status: "success" };
+}
+
+export type DeleteFolderState = {
+  status: "idle" | "success" | "error";
+  message?: string;
+};
+
+export async function deleteFolder(
+  _prev: DeleteFolderState,
+  formData: FormData,
+): Promise<DeleteFolderState> {
+  const id = Number(formData.get("id"));
+  const index = folders.findIndex((folder) => folder.id === id);
+
+  if (index === -1) {
+    return { status: "error", message: "이미 삭제되었거나 없는 폴더예요" };
+  }
+
+  // 목업 단계: 서버 메모리에서 제거하고, 속해 있던 링크는 '폴더 없음'으로 이동
+  folders.splice(index, 1);
+  for (const bookmark of bookmarks) {
+    if (bookmark.folderId === id) bookmark.folderId = null;
+  }
+
+  revalidatePath("/", "layout");
+
+  // 삭제한 폴더 페이지를 보고 있었다면 전체 목록으로 이동
+  if (formData.get("redirectHome") === "true") redirect("/");
 
   return { status: "success" };
 }

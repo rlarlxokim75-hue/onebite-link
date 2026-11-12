@@ -24,7 +24,7 @@ export default function SidebarItem({ label, href, count }: Props) {
       <span className="truncate">{label}</span>
       {count !== undefined && (
         <span
-          className={`ml-2 rounded-lg px-2 py-0.5 text-[13px] font-bold tabular-nums ${
+          className={`folder-count ml-2 rounded-lg px-2 py-0.5 text-[13px] font-bold tabular-nums ${
             active
               ? "bg-[var(--card)] text-[var(--accent)]"
               : "bg-[var(--bg)] text-[var(--text-sub)]"

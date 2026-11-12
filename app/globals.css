@@ -80,6 +80,48 @@ body {
   transform: scale(0.98);
 }
 
+.btn-danger {
+  transition: background-color 0.2s ease, transform 0.2s ease;
+}
+.btn-danger:hover {
+  background: #d63341;
+}
+.btn-danger:active {
+  transform: scale(0.98);
+}
+.btn-danger:disabled {
+  background: var(--disabled);
+  color: var(--text-sub);
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* ---------- sidebar folder row ---------- */
+
+/* 평소엔 링크 개수를 보여주고, 폴더 행에 마우스를 올렸을 때만 그 자리에 휴지통 노출
+   (키보드 Tab 이동 시에도 접근 가능하도록 :focus-visible 일 때만 예외적으로 노출) */
+.folder-delete {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease, background-color 0.2s ease, color 0.2s ease;
+}
+.folder-row:hover .folder-delete,
+.folder-row:has(:focus-visible) .folder-delete {
+  opacity: 1;
+  pointer-events: auto;
+}
+.folder-delete:hover {
+  background: #feecee;
+  color: var(--error);
+}
+.folder-count {
+  transition: opacity 0.2s ease;
+}
+.folder-row:hover .folder-count,
+.folder-row:has(:focus-visible) .folder-count {
+  opacity: 0;
+}
+
 /* ---------- modal ---------- */
 
 .modal::backdrop {
