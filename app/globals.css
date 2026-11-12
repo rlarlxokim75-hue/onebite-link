@@ -20,6 +20,7 @@
   --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.08);
   --shadow-card-hover: 0 4px 12px rgba(0, 0, 0, 0.12);
   --shadow-nav: 0 1px 0 rgba(0, 0, 0, 0.06);
+  --shadow-modal: 0 8px 32px rgba(0, 0, 0, 0.16);
 }
 
 @theme inline {
@@ -62,6 +63,50 @@ body {
   color: var(--text-sub);
   cursor: not-allowed;
   transform: none;
+}
+
+.btn-secondary,
+.btn-neutral {
+  transition: background-color 0.2s ease, transform 0.2s ease;
+}
+.btn-secondary:hover {
+  background: #d6e8ff;
+}
+.btn-neutral:hover {
+  background: var(--disabled);
+}
+.btn-secondary:active,
+.btn-neutral:active {
+  transform: scale(0.98);
+}
+
+/* ---------- modal ---------- */
+
+.modal::backdrop {
+  background: rgba(0, 0, 0, 0.4);
+}
+.modal[open] {
+  animation: modal-in 0.2s ease;
+}
+.modal[open]::backdrop {
+  animation: backdrop-in 0.2s ease;
+}
+@keyframes modal-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+  }
+}
+@keyframes backdrop-in {
+  from {
+    opacity: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .modal[open],
+  .modal[open]::backdrop {
+    animation: none;
+  }
 }
 
 .nav-item {
