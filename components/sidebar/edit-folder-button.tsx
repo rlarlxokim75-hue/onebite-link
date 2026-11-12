@@ -2,6 +2,7 @@
 
 import { useRef, useState } from "react";
 import FolderNameForm from "@/components/common/folder-name-form";
+import { PencilIcon } from "@/components/common/icons";
 import Modal from "@/components/common/modal";
 import type { Folder } from "@/lib/types";
 
@@ -29,19 +30,7 @@ export default function EditFolderButton({ folder }: Props) {
         title="폴더 이름 수정"
         className="folder-action folder-action-edit flex size-8 items-center justify-center rounded-lg text-[var(--text-sub)]"
       >
-        <svg
-          aria-hidden
-          viewBox="0 0 20 20"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="1.6"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          className="size-[18px]"
-        >
-          <path d="M13.5 3.5a1.77 1.77 0 0 1 2.5 2.5L7 15l-3.5 1 1-3.5 9-9Z" />
-          <path d="M12 5l3 3" />
-        </svg>
+        <PencilIcon />
       </button>
 
       <Modal ref={dialogRef} labelledBy={titleId} onClose={close}>

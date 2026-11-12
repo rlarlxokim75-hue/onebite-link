@@ -128,15 +128,35 @@ export async function updateFolder(
   return { status: "success" };
 }
 
-export type DeleteFolderState = {
+export type DeleteState = {
   status: "idle" | "success" | "error";
   message?: string;
 };
 
-export async function deleteFolder(
-  _prev: DeleteFolderState,
+export async function deleteBookmark(
+  _prev: DeleteState,
   formData: FormData,
-): Promise<DeleteFolderState> {
+): Promise<DeleteState> {
+  const id = Number(formData.get("id"));
+  const index = bookmarks.findIndex((bookmark) => bookmark.id === id);
+
+  if (index === -1) {
+    return { status: "error", message: "이미 삭제되었거나 없는 링크예요" };
+  }
+
+  // 목업 단계: 서버 메모리에서 제거
+  bookmarks.splice(index, 1);
+
+  // 링크 목록과 사이드바의 폴더별 개수를 갱신
+  revalidatePath("/", "layout");
+
+  return { status: "success" };
+}
+
+export async function deleteFolder(
+  _prev: DeleteState,
+  formData: FormData,
+): Promise<DeleteState> {
   const id = Number(formData.get("id"));
   const index = folders.findIndex((folder) => folder.id === id);
 

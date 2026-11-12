@@ -1,4 +1,5 @@
 import type { Bookmark } from "@/lib/types";
+import DeleteLinkButton from "./delete-link-button";
 import LinkThumbnail from "./link-thumbnail";
 
 type Props = {
@@ -16,13 +17,16 @@ function getHostname(url: string) {
 export default function LinkCard({ bookmark }: Props) {
   const hostname = getHostname(bookmark.url);
 
+  // <a> 안에 <button>을 넣을 수 없으므로, 카드 링크와 삭제 버튼을 형제로 두고 wrapper로 감싼다
   return (
-    <a
-      href={bookmark.url}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="card-hover flex h-full flex-col overflow-hidden rounded-2xl bg-[var(--card)] shadow-[var(--shadow-card)]"
-    >
+    <div className="link-card relative h-full">
+      <DeleteLinkButton bookmark={bookmark} />
+      <a
+        href={bookmark.url}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="card-hover flex h-full flex-col overflow-hidden rounded-2xl bg-[var(--card)] shadow-[var(--shadow-card)]"
+      >
       {bookmark.thumbnail && <LinkThumbnail src={bookmark.thumbnail} />}
 
       <div className="flex flex-1 flex-col gap-3 p-5">
@@ -54,6 +58,7 @@ export default function LinkCard({ bookmark }: Props) {
           {bookmark.createdAt}
         </time>
       </div>
-    </a>
+      </a>
+    </div>
   );
 }

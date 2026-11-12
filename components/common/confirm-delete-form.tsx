@@ -1,32 +1,32 @@
 "use client";
 
 import { useActionState, useEffect } from "react";
-import { deleteFolder, type DeleteFolderState } from "@/app/actions";
-import type { Folder } from "@/lib/types";
+import type { DeleteState } from "@/app/actions";
 
 type Props = {
-  folder: Folder;
-  count: number;
-  isActive: boolean;
+  action: (prev: DeleteState, formData: FormData) => Promise<DeleteState>;
+  /** 액션에 함께 보낼 값 (id 등) */
+  fields: Record<string, string | number>;
+  title: React.ReactNode;
+  description: React.ReactNode;
   titleId: string;
   onCancel: () => void;
   onSuccess: () => void;
 };
 
-const initialState: DeleteFolderState = { status: "idle" };
+const initialState: DeleteState = { status: "idle" };
 
-export default function DeleteFolderForm({
-  folder,
-  count,
-  isActive,
+/** 삭제 확인 모달 본문: 제목 + 안내 + [취소][삭제] */
+export default function ConfirmDeleteForm({
+  action,
+  fields,
+  title,
+  description,
   titleId,
   onCancel,
   onSuccess,
 }: Props) {
-  const [state, formAction, pending] = useActionState(
-    deleteFolder,
-    initialState,
-  );
+  const [state, formAction, pending] = useActionState(action, initialState);
 
   useEffect(() => {
     if (state.status === "success") onSuccess();
@@ -34,20 +34,19 @@ export default function DeleteFolderForm({
 
   return (
     <form action={formAction} className="flex flex-col gap-5 p-6">
-      <input type="hidden" name="id" value={folder.id} />
-      <input type="hidden" name="redirectHome" value={String(isActive)} />
+      {Object.entries(fields).map(([name, value]) => (
+        <input key={name} type="hidden" name={name} value={value} />
+      ))}
 
       <div className="flex flex-col gap-2">
         <h2
           id={titleId}
           className="text-[20px] leading-[1.4] font-bold text-[var(--text)]"
         >
-          ‘{folder.name}’ 폴더를 삭제할까요?
+          {title}
         </h2>
         <p className="text-[15px] leading-[1.6] text-[var(--text-sub)]">
-          {count > 0
-            ? `폴더 안의 링크 ${count}개는 삭제되지 않고 ‘폴더 없음’으로 옮겨져요.`
-            : "삭제한 폴더는 되돌릴 수 없어요."}
+          {description}
         </p>
         {state.status === "error" && (
           <p role="alert" className="text-[14px] text-[var(--error)]">
@@ -60,6 +59,7 @@ export default function DeleteFolderForm({
         <button
           type="button"
           onClick={onCancel}
+          // 실수로 삭제하지 않도록 취소에 기본 포커스
           autoFocus
           className="btn-neutral flex-1 rounded-xl bg-[var(--bg)] px-5 py-3.5 text-[17px] font-bold text-[var(--text-sub)]"
         >

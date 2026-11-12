@@ -1,9 +1,11 @@
 "use client";
 
 import { useRef, useState } from "react";
+import { deleteFolder } from "@/app/actions";
+import ConfirmDeleteForm from "@/components/common/confirm-delete-form";
+import { TrashIcon } from "@/components/common/icons";
 import Modal from "@/components/common/modal";
 import type { Folder } from "@/lib/types";
-import DeleteFolderForm from "./delete-folder-form";
 
 type Props = {
   folder: Folder;
@@ -31,29 +33,21 @@ export default function DeleteFolderButton({ folder, count, isActive }: Props) {
         title="폴더 삭제"
         className="folder-action folder-action-delete flex size-8 items-center justify-center rounded-lg text-[var(--text-sub)]"
       >
-        <svg
-          aria-hidden
-          viewBox="0 0 20 20"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="1.6"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          className="size-[18px]"
-        >
-          <path d="M3.5 5.5h13" />
-          <path d="M8 5.5V4a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v1.5" />
-          <path d="M5 5.5l.8 10.1a1.5 1.5 0 0 0 1.5 1.4h5.4a1.5 1.5 0 0 0 1.5-1.4L15 5.5" />
-          <path d="M8.5 9v4.5M11.5 9v4.5" />
-        </svg>
+        <TrashIcon />
       </button>
 
       <Modal ref={dialogRef} labelledBy={titleId} onClose={close}>
-        <DeleteFolderForm
+        <ConfirmDeleteForm
           key={formKey}
-          folder={folder}
-          count={count}
-          isActive={isActive}
+          action={deleteFolder}
+          // 삭제한 폴더 페이지를 보고 있었다면 서버에서 전체 목록으로 이동
+          fields={{ id: folder.id, redirectHome: String(isActive) }}
+          title={`‘${folder.name}’ 폴더를 삭제할까요?`}
+          description={
+            count > 0
+              ? `폴더 안의 링크 ${count}개는 삭제되지 않고 ‘폴더 없음’으로 옮겨져요.`
+              : "삭제한 폴더는 되돌릴 수 없어요."
+          }
           titleId={titleId}
           onCancel={close}
           onSuccess={close}

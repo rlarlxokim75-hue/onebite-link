@@ -41,11 +41,13 @@ body {
 .card-hover {
   transition: box-shadow 0.2s ease, transform 0.2s ease;
 }
-.card-hover:hover {
+.card-hover:hover,
+.link-card:hover .card-hover {
   box-shadow: var(--shadow-card-hover);
   transform: translateY(-2px);
 }
-.card-hover:active {
+.card-hover:active,
+.link-card:hover .card-hover:active {
   transform: scale(0.98);
 }
 
@@ -53,8 +55,31 @@ body {
 .thumb-img {
   transition: transform 0.3s ease;
 }
-.card-hover:hover .thumb-img {
+.card-hover:hover .thumb-img,
+.link-card:hover .thumb-img {
   transform: scale(1.03);
+}
+
+/* 링크 카드 우측 상단 삭제 버튼: 카드에 마우스를 올렸을 때만 노출
+   (숨김은 버튼 자체에만 건다 — 형제인 모달 <dialog>에 pointer-events가 상속되지 않도록) */
+.link-delete {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease, transform 0.2s ease, background-color 0.2s ease,
+    color 0.2s ease;
+}
+.link-card:hover .link-delete,
+.link-card:has(:focus-visible) .link-delete {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(-2px); /* 카드가 떠오르는 만큼 함께 이동 */
+}
+.link-delete:hover {
+  background: #feecee;
+  color: var(--error);
+}
+.link-delete:active {
+  transform: translateY(-2px) scale(0.95);
 }
 
 .btn-primary {
