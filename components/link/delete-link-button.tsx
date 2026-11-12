@@ -29,7 +29,7 @@ export default function DeleteLinkButton({ bookmark }: Props) {
         onClick={open}
         aria-label={`${bookmark.title} 링크 삭제`}
         title="링크 삭제"
-        className="link-delete absolute top-3 right-3 z-[1] flex size-9 items-center justify-center rounded-xl bg-[var(--card)] text-[var(--text-sub)] shadow-[var(--shadow-card)]"
+        className="link-action link-action-delete flex size-9 items-center justify-center rounded-xl bg-[var(--card)] text-[var(--text-sub)] shadow-[var(--shadow-card)]"
       >
         <TrashIcon />
       </button>

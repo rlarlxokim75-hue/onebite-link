@@ -26,7 +26,10 @@ export default async function FolderPage({ params }: PageProps<"/folder/[id]">) 
   return (
     <>
       <PageTitle>{folder.name}</PageTitle>
-      <LinkGrid bookmarks={getBookmarksByFolder(folder.id)} />
+      <LinkGrid
+        bookmarks={getBookmarksByFolder(folder.id)}
+        folders={folders}
+      />
     </>
   );
 }

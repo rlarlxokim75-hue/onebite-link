@@ -60,25 +60,29 @@ body {
   transform: scale(1.03);
 }
 
-/* 링크 카드 우측 상단 삭제 버튼: 카드에 마우스를 올렸을 때만 노출
-   (숨김은 버튼 자체에만 건다 — 형제인 모달 <dialog>에 pointer-events가 상속되지 않도록) */
-.link-delete {
+/* 링크 카드 우측 상단 [수정][삭제] 버튼: 카드에 마우스를 올렸을 때만 노출.
+   컨테이너(.link-actions)는 항상 pointer-events: none 이라 숨겨진 동안 카드 클릭을 막지 않는다. */
+.link-action {
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.2s ease, transform 0.2s ease, background-color 0.2s ease,
     color 0.2s ease;
 }
-.link-card:hover .link-delete,
-.link-card:has(:focus-visible) .link-delete {
+.link-card:hover .link-action,
+.link-card:has(:focus-visible) .link-action {
   opacity: 1;
   pointer-events: auto;
   transform: translateY(-2px); /* 카드가 떠오르는 만큼 함께 이동 */
 }
-.link-delete:hover {
+.link-action-edit:hover {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+.link-action-delete:hover {
   background: #feecee;
   color: var(--error);
 }
-.link-delete:active {
+.link-action:active {
   transform: translateY(-2px) scale(0.95);
 }
 
@@ -168,6 +172,11 @@ body {
 
 /* ---------- modal ---------- */
 
+/* pointer-events는 상속되므로, 모달이 pointer-events: none 인 컨테이너 안에 있어도
+   항상 클릭할 수 있도록 명시적으로 되돌린다 */
+.modal {
+  pointer-events: auto;
+}
 .modal::backdrop {
   background: rgba(0, 0, 0, 0.4);
 }

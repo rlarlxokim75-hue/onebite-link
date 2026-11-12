@@ -1,11 +1,12 @@
-import type { Bookmark } from "@/lib/types";
+import type { Bookmark, Folder } from "@/lib/types";
 import LinkCard from "./link-card";
 
 type Props = {
   bookmarks: Bookmark[];
+  folders: Folder[];
 };
 
-export default function LinkGrid({ bookmarks }: Props) {
+export default function LinkGrid({ bookmarks, folders }: Props) {
   if (bookmarks.length === 0) {
     return (
       <div className="flex h-64 flex-col items-center justify-center gap-2 rounded-2xl bg-[var(--card)] shadow-[var(--shadow-card)]">
@@ -23,7 +24,7 @@ export default function LinkGrid({ bookmarks }: Props) {
     <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
       {bookmarks.map((bookmark) => (
         <li key={bookmark.id}>
-          <LinkCard bookmark={bookmark} />
+          <LinkCard bookmark={bookmark} folders={folders} />
         </li>
       ))}
     </ul>

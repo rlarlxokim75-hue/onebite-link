@@ -128,6 +128,63 @@ export async function updateFolder(
   return { status: "success" };
 }
 
+export type UpdateBookmarkState = {
+  status: "idle" | "success" | "error";
+  message?: string;
+};
+
+const MAX_TITLE_LENGTH = 200;
+const MAX_DESCRIPTION_LENGTH = 500;
+
+export async function updateBookmark(
+  _prev: UpdateBookmarkState,
+  formData: FormData,
+): Promise<UpdateBookmarkState> {
+  const id = Number(formData.get("id"));
+  const bookmark = bookmarks.find((item) => item.id === id);
+  if (!bookmark) {
+    return { status: "error", message: "이미 삭제되었거나 없는 링크예요" };
+  }
+
+  const title = String(formData.get("title") ?? "").trim();
+  const description = String(formData.get("description") ?? "").trim();
+  const rawFolderId = String(formData.get("folderId") ?? "");
+
+  if (!title) {
+    return { status: "error", message: "제목을 입력해 주세요" };
+  }
+  if (title.length > MAX_TITLE_LENGTH) {
+    return {
+      status: "error",
+      message: `제목은 ${MAX_TITLE_LENGTH}자 이하로 입력해 주세요`,
+    };
+  }
+  if (description.length > MAX_DESCRIPTION_LENGTH) {
+    return {
+      status: "error",
+      message: `설명은 ${MAX_DESCRIPTION_LENGTH}자 이하로 입력해 주세요`,
+    };
+  }
+
+  let folderId: number | null = null;
+  if (rawFolderId) {
+    folderId = Number(rawFolderId);
+    if (!folders.some((folder) => folder.id === folderId)) {
+      return { status: "error", message: "선택한 폴더가 없어요" };
+    }
+  }
+
+  // 목업 단계: 서버 메모리의 객체를 직접 수정 (주소·썸네일·등록일은 유지)
+  bookmark.title = title;
+  bookmark.description = description;
+  bookmark.folderId = folderId;
+
+  // 카드 목록과 사이드바의 폴더별 개수를 갱신
+  revalidatePath("/", "layout");
+
+  return { status: "success" };
+}
+
 export type DeleteState = {
   status: "idle" | "success" | "error";
   message?: string;
