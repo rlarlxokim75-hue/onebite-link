@@ -10,9 +10,9 @@ type Props = {
 
 export default function Sidebar({ folders, totalCount, countByFolder }: Props) {
   return (
-    <aside className="w-60 shrink-0 border-r border-zinc-200 bg-zinc-50 p-4">
-      <nav className="flex flex-col gap-6">
-        <SidebarItem label="All" count={totalCount} href="/" />
+    <aside className="w-full shrink-0 self-start rounded-2xl bg-[var(--card)] p-3 shadow-[var(--shadow-card)] md:sticky md:top-[92px] md:w-60">
+      <nav className="flex flex-col gap-5">
+        <SidebarItem label="전체" count={totalCount} href="/" />
         <FolderList folders={folders} countByFolder={countByFolder} />
       </nav>
     </aside>

@@ -20,28 +20,30 @@ export default function LinkCard({ bookmark }: Props) {
       href={bookmark.url}
       target="_blank"
       rel="noopener noreferrer"
-      className="flex h-full flex-col gap-3 rounded-xl border border-zinc-200 bg-white p-5 transition-shadow hover:shadow-md"
+      className="card-hover flex h-full flex-col gap-3 rounded-2xl bg-[var(--card)] p-5 shadow-[var(--shadow-card)]"
     >
       <div className="flex items-center gap-3">
         <span
           aria-hidden
-          className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-zinc-100 text-sm font-bold uppercase text-zinc-600"
+          className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-[var(--accent-soft)] text-[17px] font-bold uppercase text-[var(--accent)]"
         >
           {hostname.charAt(0)}
         </span>
         <div className="min-w-0">
-          <h3 className="truncate font-semibold text-zinc-900">
+          <h3 className="truncate text-[17px] leading-[1.4] font-bold text-[var(--text)]">
             {bookmark.title}
           </h3>
-          <p className="truncate text-xs text-zinc-400">{hostname}</p>
+          <p className="truncate text-[14px] leading-[1.4] text-[var(--text-sub)]">
+            {hostname}
+          </p>
         </div>
       </div>
-      <p className="line-clamp-2 text-sm text-zinc-600">
+      <p className="line-clamp-2 text-[15px] leading-[1.6] text-[var(--text-sub)]">
         {bookmark.description}
       </p>
       <time
         dateTime={bookmark.createdAt}
-        className="mt-auto text-xs text-zinc-400"
+        className="mt-auto text-[14px] leading-[1.4] text-[var(--text-sub)]"
       >
         {bookmark.createdAt}
       </time>

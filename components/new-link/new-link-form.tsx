@@ -14,7 +14,7 @@ export default function NewLinkForm({ folders }: Props) {
     <form
       // UI 단계: 저장 로직은 아직 연결하지 않음
       onSubmit={(e) => e.preventDefault()}
-      className="flex max-w-xl flex-col gap-5 rounded-xl border border-zinc-200 bg-white p-6"
+      className="flex max-w-[640px] flex-col gap-5 rounded-2xl bg-[var(--card)] p-6 shadow-[var(--shadow-card)]"
     >
       <LinkUrlInput />
       <FolderSelect folders={folders} />

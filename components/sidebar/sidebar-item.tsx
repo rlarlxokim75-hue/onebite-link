@@ -17,17 +17,17 @@ export default function SidebarItem({ label, href, count }: Props) {
     <Link
       href={href}
       aria-current={active ? "page" : undefined}
-      className={`flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-sm transition-colors ${
-        active
-          ? "bg-zinc-900 font-semibold text-white"
-          : "text-zinc-700 hover:bg-zinc-200"
+      className={`nav-item flex w-full items-center justify-between rounded-xl px-3 py-2.5 text-left text-[16px] ${
+        active ? "font-bold text-[var(--accent)]" : "text-[var(--text)]"
       }`}
     >
       <span className="truncate">{label}</span>
       {count !== undefined && (
         <span
-          className={`ml-2 text-xs tabular-nums ${
-            active ? "text-zinc-300" : "text-zinc-400"
+          className={`ml-2 rounded-lg px-2 py-0.5 text-[13px] font-bold tabular-nums ${
+            active
+              ? "bg-[var(--card)] text-[var(--accent)]"
+              : "bg-[var(--bg)] text-[var(--text-sub)]"
           }`}
         >
           {count}

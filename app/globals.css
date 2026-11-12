@@ -1,26 +1,98 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Toss style — light mode only */
+  --bg: #f4f4f4;
+  --card: #ffffff;
+  --text: #191f28;
+  /* 가이드 원색(#8B95A1)은 #F4F4F4 대비 3:1 미만이라 어둡게 조정 */
+  --text-sub: #6b7684;
+  --placeholder: #848e9a;
+  --accent: #3182f6;
+  --accent-hover: #1b64da;
+  --accent-soft: #e8f3ff;
+  --disabled: #dcdee3;
+  --error: #f04452;
+  --success: #30b06e;
+  --input-bg: #f4f4f4;
+  --hover-bg: #f2f4f6;
+
+  --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.08);
+  --shadow-card-hover: 0 4px 12px rgba(0, 0, 0, 0.12);
+  --shadow-nav: 0 1px 0 rgba(0, 0, 0, 0.06);
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --font-sans: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo",
+    "Pretendard", "Malgun Gothic", sans-serif;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-sans);
+  font-size: 17px;
+  line-height: 1.6;
+}
+
+/* ---------- interactions ---------- */
+
+.card-hover {
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+.card-hover:hover {
+  box-shadow: var(--shadow-card-hover);
+  transform: translateY(-2px);
+}
+.card-hover:active {
+  transform: scale(0.98);
+}
+
+.btn-primary {
+  transition: background-color 0.2s ease, transform 0.2s ease;
+}
+.btn-primary:hover {
+  background: var(--accent-hover);
+}
+.btn-primary:active {
+  transform: scale(0.98);
+}
+.btn-primary:disabled {
+  background: var(--disabled);
+  color: var(--text-sub);
+  cursor: not-allowed;
+  transform: none;
+}
+
+.nav-item {
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+.nav-item:hover {
+  background: var(--hover-bg);
+}
+.nav-item[aria-current="page"],
+.nav-item[aria-current="page"]:hover {
+  background: var(--accent-soft);
+}
+
+.link-hover {
+  transition: opacity 0.2s ease;
+}
+.link-hover:hover {
+  opacity: 0.8;
+}
+
+.field {
+  transition: background-color 0.2s ease, box-shadow 0.2s ease;
+}
+.field::placeholder {
+  color: var(--placeholder);
+}
+.field:focus {
+  background: var(--card);
+  box-shadow: 0 0 0 2px var(--accent);
+  outline: none;
+}
+.field:user-invalid {
+  box-shadow: 0 0 0 2px var(--error);
 }
