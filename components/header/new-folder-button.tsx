@@ -1,8 +1,10 @@
 "use client";
 
 import { useRef, useState } from "react";
+import FolderNameForm from "@/components/common/folder-name-form";
 import Modal from "@/components/common/modal";
-import NewFolderForm from "./new-folder-form";
+
+const TITLE_ID = "new-folder-title";
 
 export default function NewFolderButton() {
   const dialogRef = useRef<HTMLDialogElement>(null);
@@ -28,8 +30,13 @@ export default function NewFolderButton() {
         새 폴더
       </button>
 
-      <Modal ref={dialogRef} labelledBy="new-folder-title" onClose={close}>
-        <NewFolderForm key={formKey} onCancel={close} onSuccess={close} />
+      <Modal ref={dialogRef} labelledBy={TITLE_ID} onClose={close}>
+        <FolderNameForm
+          key={formKey}
+          titleId={TITLE_ID}
+          onCancel={close}
+          onSuccess={close}
+        />
       </Modal>
     </>
   );

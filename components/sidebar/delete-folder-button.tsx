@@ -29,7 +29,7 @@ export default function DeleteFolderButton({ folder, count, isActive }: Props) {
         onClick={open}
         aria-label={`${folder.name} 폴더 삭제`}
         title="폴더 삭제"
-        className="folder-delete absolute top-1/2 right-2 flex size-8 -translate-y-1/2 items-center justify-center rounded-lg text-[var(--text-sub)]"
+        className="folder-action folder-action-delete flex size-8 items-center justify-center rounded-lg text-[var(--text-sub)]"
       >
         <svg
           aria-hidden

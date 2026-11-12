@@ -98,28 +98,39 @@ body {
 
 /* ---------- sidebar folder row ---------- */
 
-/* 평소엔 링크 개수를 보여주고, 폴더 행에 마우스를 올렸을 때만 그 자리에 휴지통 노출
+/* 평소엔 링크 개수를 보여주고, 폴더 행에 마우스를 올렸을 때만 그 자리에 [연필][휴지통] 노출
    (키보드 Tab 이동 시에도 접근 가능하도록 :focus-visible 일 때만 예외적으로 노출) */
-.folder-delete {
+/* 주의: 숨김(opacity/pointer-events)은 컨테이너(.folder-actions)가 아닌 버튼에 직접 건다.
+   pointer-events는 상속되므로 컨테이너에 걸면 그 안에서 열리는 모달(<dialog>)까지 클릭이 막힌다. */
+.folder-action {
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.2s ease, background-color 0.2s ease, color 0.2s ease;
 }
-.folder-row:hover .folder-delete,
-.folder-row:has(:focus-visible) .folder-delete {
+.folder-row:hover .folder-action,
+.folder-row:has(:focus-visible) .folder-action {
   opacity: 1;
   pointer-events: auto;
 }
-.folder-delete:hover {
+.folder-action-edit:hover {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+.folder-action-delete:hover {
   background: #feecee;
   color: var(--error);
 }
-.folder-count {
-  transition: opacity 0.2s ease;
+/* 버튼 2개가 이름을 덮지 않도록 hover 시 이름 영역의 오른쪽 여백 확보 */
+.folder-row .nav-item {
+  transition: background-color 0.2s ease, color 0.2s ease, padding 0.2s ease;
+}
+.folder-row:hover .nav-item,
+.folder-row:has(:focus-visible) .nav-item {
+  padding-right: 76px;
 }
 .folder-row:hover .folder-count,
 .folder-row:has(:focus-visible) .folder-count {
-  opacity: 0;
+  display: none;
 }
 
 /* ---------- modal ---------- */

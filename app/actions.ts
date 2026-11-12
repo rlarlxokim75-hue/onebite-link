@@ -4,17 +4,18 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { bookmarks, folders } from "@/lib/mock-data";
 
-export type CreateFolderState = {
+export type FolderFormState = {
   status: "idle" | "success" | "error";
   message?: string;
 };
 
 const MAX_NAME_LENGTH = 20;
 
-export async function createFolder(
-  _prev: CreateFolderState,
+/** 폴더 이름 검증. 통과하면 다듬은 이름을, 실패하면 에러 상태를 반환 */
+function validateFolderName(
   formData: FormData,
-): Promise<CreateFolderState> {
+  excludeId?: number,
+): { name: string } | FolderFormState {
   const raw = formData.get("name");
   const name = typeof raw === "string" ? raw.trim() : "";
 
@@ -27,15 +28,47 @@ export async function createFolder(
       message: `폴더 이름은 ${MAX_NAME_LENGTH}자 이하로 입력해 주세요`,
     };
   }
-  if (folders.some((folder) => folder.name === name)) {
+  if (
+    folders.some((folder) => folder.name === name && folder.id !== excludeId)
+  ) {
     return { status: "error", message: "이미 같은 이름의 폴더가 있어요" };
   }
+  return { name };
+}
+
+export async function createFolder(
+  _prev: FolderFormState,
+  formData: FormData,
+): Promise<FolderFormState> {
+  const result = validateFolderName(formData);
+  if (!("name" in result)) return result;
 
   // 목업 단계: 서버 메모리의 배열에 추가 (서버 재시작 시 초기화됨)
   const nextId = Math.max(0, ...folders.map((folder) => folder.id)) + 1;
-  folders.push({ id: nextId, name });
+  folders.push({ id: nextId, name: result.name });
 
   // 사이드바(레이아웃)와 새 링크 폼의 폴더 목록을 갱신
+  revalidatePath("/", "layout");
+
+  return { status: "success" };
+}
+
+export async function updateFolder(
+  _prev: FolderFormState,
+  formData: FormData,
+): Promise<FolderFormState> {
+  const id = Number(formData.get("id"));
+  const folder = folders.find((item) => item.id === id);
+  if (!folder) {
+    return { status: "error", message: "이미 삭제되었거나 없는 폴더예요" };
+  }
+
+  const result = validateFolderName(formData, id);
+  if (!("name" in result)) return result;
+
+  folder.name = result.name;
+
+  // 사이드바, 폴더 페이지 제목, 새 링크 폼의 폴더 목록을 갱신
   revalidatePath("/", "layout");
 
   return { status: "success" };

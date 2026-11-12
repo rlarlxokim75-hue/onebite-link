@@ -1,18 +1,32 @@
 "use client";
 
 import { useActionState, useEffect } from "react";
-import { createFolder, type CreateFolderState } from "@/app/actions";
+import {
+  createFolder,
+  updateFolder,
+  type FolderFormState,
+} from "@/app/actions";
+import type { Folder } from "@/lib/types";
 
 type Props = {
+  /** 전달하면 수정 모드, 없으면 새 폴더 생성 모드 */
+  folder?: Folder;
+  titleId: string;
   onCancel: () => void;
   onSuccess: () => void;
 };
 
-const initialState: CreateFolderState = { status: "idle" };
+const initialState: FolderFormState = { status: "idle" };
 
-export default function NewFolderForm({ onCancel, onSuccess }: Props) {
+export default function FolderNameForm({
+  folder,
+  titleId,
+  onCancel,
+  onSuccess,
+}: Props) {
+  const isEdit = folder !== undefined;
   const [state, formAction, pending] = useActionState(
-    createFolder,
+    isEdit ? updateFolder : createFolder,
     initialState,
   );
 
@@ -21,14 +35,17 @@ export default function NewFolderForm({ onCancel, onSuccess }: Props) {
   }, [state, onSuccess]);
 
   const hasError = state.status === "error";
+  const errorId = `${titleId}-error`;
 
   return (
     <form action={formAction} className="flex flex-col gap-5 p-6">
+      {isEdit && <input type="hidden" name="id" value={folder.id} />}
+
       <h2
-        id="new-folder-title"
+        id={titleId}
         className="text-[20px] leading-[1.4] font-bold text-[var(--text)]"
       >
-        새 폴더 만들기
+        {isEdit ? "폴더 이름 수정" : "새 폴더 만들기"}
       </h2>
 
       <label className="flex flex-col gap-2">
@@ -42,14 +59,17 @@ export default function NewFolderForm({ onCancel, onSuccess }: Props) {
           maxLength={20}
           autoFocus
           autoComplete="off"
+          defaultValue={folder?.name}
+          // 수정 모드에서는 기존 이름을 전체 선택해 바로 덮어쓸 수 있게
+          onFocus={isEdit ? (e) => e.currentTarget.select() : undefined}
           placeholder="예) 공부, 맛집"
           aria-invalid={hasError || undefined}
-          aria-describedby={hasError ? "new-folder-error" : undefined}
+          aria-describedby={hasError ? errorId : undefined}
           className="field rounded-xl bg-[var(--input-bg)] px-4 py-3.5 text-[17px] text-[var(--text)]"
         />
         {hasError && (
           <p
-            id="new-folder-error"
+            id={errorId}
             role="alert"
             className="text-[14px] leading-[1.4] text-[var(--error)]"
           >
