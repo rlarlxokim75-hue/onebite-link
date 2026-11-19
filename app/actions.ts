@@ -222,14 +222,22 @@ export async function deleteFolder(
   formData: FormData,
 ): Promise<DeleteState> {
   const id = Number(formData.get("id"));
-  const index = folders.findIndex((folder) => folder.id === id);
 
-  if (index === -1) {
+  // link.folder_id는 ON DELETE SET NULL이라 속한 링크는 DB가 '폴더 없음'으로 바꿔 준다
+  const supabase = createClient(await cookies());
+  const { data, error } = await supabase
+    .from("folder")
+    .delete()
+    .eq("id", id)
+    .select("id");
+  if (error) {
+    return { status: "error", message: "폴더를 삭제하지 못했어요" };
+  }
+  if (data.length === 0) {
     return { status: "error", message: "이미 삭제되었거나 없는 폴더예요" };
   }
 
-  // 목업 단계: 서버 메모리에서 제거하고, 속해 있던 링크는 '폴더 없음'으로 이동
-  folders.splice(index, 1);
+  // 링크는 아직 목업 단계: 서버 메모리의 링크도 '폴더 없음'으로 이동
   for (const bookmark of bookmarks) {
     if (bookmark.folderId === id) bookmark.folderId = null;
   }
