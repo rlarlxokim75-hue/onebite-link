@@ -3,7 +3,6 @@
 import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { bookmarks } from "@/lib/mock-data";
 import { fetchOpenGraph, OpenGraphError } from "@/lib/og";
 import { createClient } from "@/utils/supabase/server";
 
@@ -216,14 +215,19 @@ export async function deleteBookmark(
   formData: FormData,
 ): Promise<DeleteState> {
   const id = Number(formData.get("id"));
-  const index = bookmarks.findIndex((bookmark) => bookmark.id === id);
 
-  if (index === -1) {
+  const supabase = createClient(await cookies());
+  const { data, error } = await supabase
+    .from("link")
+    .delete()
+    .eq("id", id)
+    .select("id");
+  if (error) {
+    return { status: "error", message: "링크를 삭제하지 못했어요" };
+  }
+  if (data.length === 0) {
     return { status: "error", message: "이미 삭제되었거나 없는 링크예요" };
   }
-
-  // 목업 단계: 서버 메모리에서 제거
-  bookmarks.splice(index, 1);
 
   // 링크 목록과 사이드바의 폴더별 개수를 갱신
   revalidatePath("/", "layout");
@@ -249,11 +253,6 @@ export async function deleteFolder(
   }
   if (data.length === 0) {
     return { status: "error", message: "이미 삭제되었거나 없는 폴더예요" };
-  }
-
-  // 링크는 아직 목업 단계: 서버 메모리의 링크도 '폴더 없음'으로 이동
-  for (const bookmark of bookmarks) {
-    if (bookmark.folderId === id) bookmark.folderId = null;
   }
 
   revalidatePath("/", "layout");
