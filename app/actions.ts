@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { bookmarks, folders } from "@/lib/mock-data";
+import { bookmarks } from "@/lib/mock-data";
 import { fetchOpenGraph, OpenGraphError } from "@/lib/og";
 import { createClient } from "@/utils/supabase/server";
 
@@ -152,11 +152,6 @@ export async function updateBookmark(
   formData: FormData,
 ): Promise<UpdateBookmarkState> {
   const id = Number(formData.get("id"));
-  const bookmark = bookmarks.find((item) => item.id === id);
-  if (!bookmark) {
-    return { status: "error", message: "이미 삭제되었거나 없는 링크예요" };
-  }
-
   const title = String(formData.get("title") ?? "").trim();
   const description = String(formData.get("description") ?? "").trim();
   const rawFolderId = String(formData.get("folderId") ?? "");
@@ -177,18 +172,33 @@ export async function updateBookmark(
     };
   }
 
+  const supabase = createClient(await cookies());
+
   let folderId: number | null = null;
   if (rawFolderId) {
     folderId = Number(rawFolderId);
-    if (!folders.some((folder) => folder.id === folderId)) {
+    const { data: folder } = await supabase
+      .from("folder")
+      .select("id")
+      .eq("id", folderId)
+      .maybeSingle();
+    if (!folder) {
       return { status: "error", message: "선택한 폴더가 없어요" };
     }
   }
 
-  // 목업 단계: 서버 메모리의 객체를 직접 수정 (주소·썸네일·등록일은 유지)
-  bookmark.title = title;
-  bookmark.description = description;
-  bookmark.folderId = folderId;
+  // 주소·썸네일·등록일은 유지하고 폴더 / 제목 / 설명만 갱신
+  const { data, error } = await supabase
+    .from("link")
+    .update({ title, description, folder_id: folderId })
+    .eq("id", id)
+    .select("id");
+  if (error) {
+    return { status: "error", message: "링크를 수정하지 못했어요" };
+  }
+  if (data.length === 0) {
+    return { status: "error", message: "이미 삭제되었거나 없는 링크예요" };
+  }
 
   // 카드 목록과 사이드바의 폴더별 개수를 갱신
   revalidatePath("/", "layout");
