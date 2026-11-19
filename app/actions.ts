@@ -23,10 +23,17 @@ export async function createBookmark(
   const rawFolderId = String(formData.get("folderId") ?? "");
   const keep = { url: rawUrl, folderId: rawFolderId };
 
+  const supabase = createClient(await cookies());
+
   let folderId: number | null = null;
   if (rawFolderId) {
     folderId = Number(rawFolderId);
-    if (!folders.some((folder) => folder.id === folderId)) {
+    const { data: folder } = await supabase
+      .from("folder")
+      .select("id")
+      .eq("id", folderId)
+      .maybeSingle();
+    if (!folder) {
       return { status: "error", message: "선택한 폴더가 없어요", ...keep };
     }
   }
@@ -42,19 +49,16 @@ export async function createBookmark(
     return { status: "error", message, ...keep };
   }
 
-  // 목업 단계: 서버 메모리의 배열 맨 앞에 추가 (최신순)
-  const nextId = Math.max(0, ...bookmarks.map((bookmark) => bookmark.id)) + 1;
-  bookmarks.unshift({
-    id: nextId,
-    title: og.title,
+  const { error } = await supabase.from("link").insert({
     url: og.url,
+    title: og.title,
     description: og.description,
-    thumbnail: og.thumbnail,
-    folderId,
-    createdAt: new Date().toLocaleDateString("sv-SE", {
-      timeZone: "Asia/Seoul",
-    }), // YYYY-MM-DD
+    thumbnail_url: og.thumbnail,
+    folder_id: folderId,
   });
+  if (error) {
+    return { status: "error", message: "링크를 저장하지 못했어요", ...keep };
+  }
 
   revalidatePath("/", "layout");
   redirect(folderId ? `/folder/${folderId}` : "/");
