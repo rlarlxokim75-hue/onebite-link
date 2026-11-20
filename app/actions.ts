@@ -325,3 +325,51 @@ export async function signUp(
   revalidatePath("/", "layout");
   redirect("/");
 }
+
+export type LoginState = {
+  status: "idle" | "error";
+  message?: string;
+  /** 같은 메시지가 반복돼도 토스트가 다시 뜨도록 매 응답마다 달라지는 값 */
+  key?: number;
+};
+
+/** Supabase Auth 로그인 오류를 한국어 메시지로 변환 */
+function loginErrorMessage(error: { code?: string }): string {
+  switch (error.code) {
+    case "invalid_credentials":
+      return "이메일 또는 비밀번호가 올바르지 않아요";
+    case "email_not_confirmed":
+      return "이메일 인증이 완료되지 않았어요. 메일함을 확인해 주세요";
+    case "over_request_rate_limit":
+    case "over_email_send_rate_limit":
+      return "요청이 너무 많아요. 잠시 후 다시 시도해 주세요";
+    case "user_banned":
+      return "이용이 제한된 계정이에요";
+    default:
+      return "로그인에 실패했어요. 잠시 후 다시 시도해 주세요";
+  }
+}
+
+export async function signIn(
+  _prev: LoginState,
+  formData: FormData,
+): Promise<LoginState> {
+  const email = String(formData.get("email") ?? "").trim();
+  const password = String(formData.get("password") ?? "");
+  const fail = (message: string): LoginState => ({
+    status: "error",
+    message,
+    key: Date.now(),
+  });
+
+  if (!email || !password) {
+    return fail("이메일과 비밀번호를 모두 입력해 주세요");
+  }
+
+  const supabase = createClient(await cookies());
+  const { error } = await supabase.auth.signInWithPassword({ email, password });
+  if (error) return fail(loginErrorMessage(error));
+
+  revalidatePath("/", "layout");
+  redirect("/");
+}
