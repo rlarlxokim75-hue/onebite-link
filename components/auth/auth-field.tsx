@@ -5,6 +5,9 @@ type Props = {
   autoComplete: string;
   placeholder?: string;
   autoFocus?: boolean;
+  /** 둘 다 전달하면 제어 컴포넌트로 동작 */
+  value?: string;
+  onChange?: (value: string) => void;
 };
 
 export default function AuthField({
@@ -14,6 +17,8 @@ export default function AuthField({
   autoComplete,
   placeholder,
   autoFocus,
+  value,
+  onChange,
 }: Props) {
   return (
     <label className="flex flex-col gap-2">
@@ -27,6 +32,8 @@ export default function AuthField({
         autoFocus={autoFocus}
         autoComplete={autoComplete}
         placeholder={placeholder}
+        value={value}
+        onChange={onChange ? (e) => onChange(e.target.value) : undefined}
         className="field rounded-xl bg-[var(--input-bg)] px-4 py-3.5 text-[17px] text-[var(--text)]"
       />
     </label>

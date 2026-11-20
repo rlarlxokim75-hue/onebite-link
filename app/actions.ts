@@ -262,3 +262,66 @@ export async function deleteFolder(
 
   return { status: "success" };
 }
+
+export type SignupState = {
+  status: "idle" | "error";
+  message?: string;
+  /** 같은 메시지가 반복돼도 토스트가 다시 뜨도록 매 응답마다 달라지는 값 */
+  key?: number;
+  email?: string;
+};
+
+const MIN_PASSWORD_LENGTH = 6;
+
+/** Supabase Auth 오류를 한국어 메시지로 변환 */
+function signupErrorMessage(error: { code?: string; message: string }): string {
+  switch (error.code) {
+    case "user_already_exists":
+    case "email_exists":
+      return "이미 가입된 이메일이에요";
+    case "weak_password":
+      return `비밀번호는 ${MIN_PASSWORD_LENGTH}자 이상이어야 해요`;
+    case "email_address_invalid":
+    case "validation_failed":
+      return "올바른 이메일 주소를 입력해 주세요";
+    case "over_email_send_rate_limit":
+    case "over_request_rate_limit":
+      return "요청이 너무 많아요. 잠시 후 다시 시도해 주세요";
+    case "signup_disabled":
+      return "현재 회원가입을 할 수 없어요";
+    default:
+      return "회원가입에 실패했어요. 잠시 후 다시 시도해 주세요";
+  }
+}
+
+export async function signUp(
+  _prev: SignupState,
+  formData: FormData,
+): Promise<SignupState> {
+  const email = String(formData.get("email") ?? "").trim();
+  const password = String(formData.get("password") ?? "");
+  const passwordConfirm = String(formData.get("passwordConfirm") ?? "");
+  const fail = (message: string): SignupState => ({
+    status: "error",
+    message,
+    key: Date.now(),
+    email,
+  });
+
+  if (!email || !password || !passwordConfirm) {
+    return fail("이메일과 비밀번호를 모두 입력해 주세요");
+  }
+  if (password !== passwordConfirm) {
+    return fail("비밀번호가 일치하지 않아요");
+  }
+  if (password.length < MIN_PASSWORD_LENGTH) {
+    return fail(`비밀번호는 ${MIN_PASSWORD_LENGTH}자 이상이어야 해요`);
+  }
+
+  const supabase = createClient(await cookies());
+  const { error } = await supabase.auth.signUp({ email, password });
+  if (error) return fail(signupErrorMessage(error));
+
+  revalidatePath("/", "layout");
+  redirect("/");
+}
