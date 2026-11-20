@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { fetchOpenGraph, OpenGraphError } from "@/lib/og";
 import { createClient } from "@/utils/supabase/server";
@@ -380,4 +380,102 @@ export async function signOut() {
 
   revalidatePath("/", "layout");
   redirect("/login");
+}
+
+export type ForgotPasswordState = {
+  status: "idle" | "success" | "error";
+  message?: string;
+  /** 같은 메시지가 반복돼도 토스트가 다시 뜨도록 매 응답마다 달라지는 값 */
+  key?: number;
+};
+
+export async function sendPasswordReset(
+  _prev: ForgotPasswordState,
+  formData: FormData,
+): Promise<ForgotPasswordState> {
+  const email = String(formData.get("email") ?? "").trim();
+  const result = (
+    status: "success" | "error",
+    message: string,
+  ): ForgotPasswordState => ({ status, message, key: Date.now() });
+
+  if (!email) return result("error", "이메일을 입력해 주세요");
+
+  // 메일 속 링크가 돌아올 주소 (Supabase Redirect URLs에 허용돼 있어야 함)
+  const requestHeaders = await headers();
+  const host = requestHeaders.get("host");
+  const origin =
+    requestHeaders.get("origin") ??
+    `${host?.startsWith("localhost") ? "http" : "https"}://${host}`;
+  const supabase = createClient(await cookies());
+  const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo: `${origin}/auth/callback?next=/reset-password`,
+  });
+
+  if (error) {
+    switch (error.code) {
+      case "over_email_send_rate_limit":
+      case "over_request_rate_limit":
+        return result("error", "요청이 너무 많아요. 잠시 후 다시 시도해 주세요");
+      case "email_address_invalid":
+      case "validation_failed":
+        return result("error", "올바른 이메일 주소를 입력해 주세요");
+      default:
+        return result("error", "메일을 보내지 못했어요. 잠시 후 다시 시도해 주세요");
+    }
+  }
+
+  return result("success", "비밀번호 재설정 메일을 보냈어요. 메일함을 확인해 주세요");
+}
+
+export type ResetPasswordState = {
+  status: "idle" | "error";
+  message?: string;
+  key?: number;
+};
+
+export async function resetPassword(
+  _prev: ResetPasswordState,
+  formData: FormData,
+): Promise<ResetPasswordState> {
+  const password = String(formData.get("password") ?? "");
+  const passwordConfirm = String(formData.get("passwordConfirm") ?? "");
+  const fail = (message: string): ResetPasswordState => ({
+    status: "error",
+    message,
+    key: Date.now(),
+  });
+
+  if (!password || !passwordConfirm) {
+    return fail("새 비밀번호를 모두 입력해 주세요");
+  }
+  if (password !== passwordConfirm) {
+    return fail("비밀번호가 일치하지 않아요");
+  }
+  if (password.length < MIN_PASSWORD_LENGTH) {
+    return fail(`비밀번호는 ${MIN_PASSWORD_LENGTH}자 이상이어야 해요`);
+  }
+
+  const supabase = createClient(await cookies());
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) {
+    return fail("링크가 만료되었어요. 비밀번호 찾기를 다시 진행해 주세요");
+  }
+
+  const { error } = await supabase.auth.updateUser({ password });
+  if (error) {
+    switch (error.code) {
+      case "same_password":
+        return fail("이전과 다른 비밀번호를 입력해 주세요");
+      case "weak_password":
+        return fail(`비밀번호는 ${MIN_PASSWORD_LENGTH}자 이상이어야 해요`);
+      default:
+        return fail("비밀번호를 변경하지 못했어요. 잠시 후 다시 시도해 주세요");
+    }
+  }
+
+  revalidatePath("/", "layout");
+  redirect("/");
 }
