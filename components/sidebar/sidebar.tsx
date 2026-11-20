@@ -1,6 +1,7 @@
 import type { Folder } from "@/lib/types";
 import SidebarItem from "./sidebar-item";
 import FolderList from "./folder-list";
+import LogoutButton from "./logout-button";
 
 type Props = {
   folders: Folder[];
@@ -15,6 +16,7 @@ export default function Sidebar({ folders, totalCount, countByFolder }: Props) {
         <SidebarItem label="전체" count={totalCount} href="/" />
         <FolderList folders={folders} countByFolder={countByFolder} />
       </nav>
+      <LogoutButton />
     </aside>
   );
 }

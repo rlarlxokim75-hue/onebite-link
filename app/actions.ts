@@ -373,3 +373,11 @@ export async function signIn(
   revalidatePath("/", "layout");
   redirect("/");
 }
+
+export async function signOut() {
+  const supabase = createClient(await cookies());
+  await supabase.auth.signOut();
+
+  revalidatePath("/", "layout");
+  redirect("/login");
+}
