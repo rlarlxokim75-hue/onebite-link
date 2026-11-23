@@ -4,6 +4,7 @@ import { useActionState, useState } from "react";
 import { signIn, type LoginState } from "@/app/actions";
 import Toast from "@/components/common/toast";
 import AuthField from "./auth-field";
+import KakaoLoginButton from "./kakao-login-button";
 
 const initialState: LoginState = { status: "idle" };
 
@@ -54,6 +55,9 @@ export default function LoginForm() {
           {pending ? "로그인 중…" : "로그인"}
         </button>
       </form>
+      <div className="mt-3">
+        <KakaoLoginButton />
+      </div>
     </>
   );
 }

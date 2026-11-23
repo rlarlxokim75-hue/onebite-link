@@ -479,3 +479,34 @@ export async function resetPassword(
   revalidatePath("/", "layout");
   redirect("/");
 }
+
+export type KakaoLoginState = {
+  status: "idle" | "error";
+  message?: string;
+  key?: number;
+};
+
+export async function signInWithKakao(): Promise<KakaoLoginState> {
+  const requestHeaders = await headers();
+  const host = requestHeaders.get("host");
+  const origin =
+    requestHeaders.get("origin") ??
+    `${host?.startsWith("localhost") ? "http" : "https"}://${host}`;
+
+  const supabase = createClient(await cookies());
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    provider: "kakao",
+    options: { redirectTo: `${origin}/auth/callback?next=/` },
+  });
+
+  if (error || !data.url) {
+    return {
+      status: "error",
+      message: "카카오 로그인을 시작하지 못했어요. 잠시 후 다시 시도해 주세요",
+      key: Date.now(),
+    };
+  }
+
+  // 카카오 인증 화면으로 이동
+  redirect(data.url);
+}

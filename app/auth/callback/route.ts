@@ -16,5 +16,8 @@ export async function GET(request: NextRequest) {
     if (!error) return NextResponse.redirect(`${origin}${safeNext}`);
   }
 
-  return NextResponse.redirect(`${origin}/forgot-password?expired=1`);
+  // 재설정 링크 실패는 비밀번호 찾기로, 그 외(소셜 로그인 등)는 로그인으로
+  const fallback =
+    safeNext === "/reset-password" ? "/forgot-password?expired=1" : "/login";
+  return NextResponse.redirect(`${origin}${fallback}`);
 }
