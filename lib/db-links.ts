@@ -1,6 +1,6 @@
 import { cookies } from "next/headers";
 import type { Bookmark, Folder } from "@/lib/types";
-import { createClient } from "@/utils/supabase/server";
+import { createClient, requireUserId } from "@/utils/supabase/server";
 
 type LinkRow = {
   id: number;
@@ -34,6 +34,7 @@ export async function getLinks(folderId?: number): Promise<Bookmark[]> {
   let query = supabase
     .from("link")
     .select(COLUMNS)
+    .eq("user_id", await requireUserId())
     .order("created_at", { ascending: false })
     .order("id", { ascending: false });
   if (folderId !== undefined) query = query.eq("folder_id", folderId);
@@ -51,6 +52,7 @@ export async function getFolderById(id: string): Promise<Folder | undefined> {
     .from("folder")
     .select("id, name")
     .eq("id", Number(id))
+    .eq("user_id", await requireUserId())
     .maybeSingle();
   if (error) throw new Error(`폴더 조회 실패: ${error.message}`);
   return data ?? undefined;

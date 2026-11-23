@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { cookies, headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { fetchOpenGraph, OpenGraphError } from "@/lib/og";
-import { createClient } from "@/utils/supabase/server";
+import { createClient, requireUserId } from "@/utils/supabase/server";
 
 export type BookmarkFormState = {
   status: "idle" | "error";
@@ -31,6 +31,7 @@ export async function createBookmark(
       .from("folder")
       .select("id")
       .eq("id", folderId)
+      .eq("user_id", await requireUserId())
       .maybeSingle();
     if (!folder) {
       return { status: "error", message: "선택한 폴더가 없어요", ...keep };
@@ -124,6 +125,7 @@ export async function updateFolder(
     .from("folder")
     .update({ name: result.name })
     .eq("id", id)
+    .eq("user_id", await requireUserId())
     .select("id");
   if (error) {
     return { status: "error", message: "폴더 이름을 수정하지 못했어요" };
@@ -180,6 +182,7 @@ export async function updateBookmark(
       .from("folder")
       .select("id")
       .eq("id", folderId)
+      .eq("user_id", await requireUserId())
       .maybeSingle();
     if (!folder) {
       return { status: "error", message: "선택한 폴더가 없어요" };
@@ -191,6 +194,7 @@ export async function updateBookmark(
     .from("link")
     .update({ title, description, folder_id: folderId })
     .eq("id", id)
+    .eq("user_id", await requireUserId())
     .select("id");
   if (error) {
     return { status: "error", message: "링크를 수정하지 못했어요" };
@@ -221,6 +225,7 @@ export async function deleteBookmark(
     .from("link")
     .delete()
     .eq("id", id)
+    .eq("user_id", await requireUserId())
     .select("id");
   if (error) {
     return { status: "error", message: "링크를 삭제하지 못했어요" };
@@ -247,6 +252,7 @@ export async function deleteFolder(
     .from("folder")
     .delete()
     .eq("id", id)
+    .eq("user_id", await requireUserId())
     .select("id");
   if (error) {
     return { status: "error", message: "폴더를 삭제하지 못했어요" };
