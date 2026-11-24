@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import PageTitle from "@/components/common/page-title";
 import LinkGrid from "@/components/link/link-grid";
+import { pageMetadata } from "@/lib/metadata";
 import { getFolders } from "@/lib/db-folders";
 import { getFolderById, getLinks } from "@/lib/db-links";
 
@@ -11,7 +12,9 @@ export async function generateMetadata({
 }: PageProps<"/folder/[id]">): Promise<Metadata> {
   const { id } = await params;
   const folder = await getFolderById(id);
-  return { title: folder ? `${folder.name} | 한입 링크` : "한입 링크" };
+  return folder
+    ? pageMetadata(folder.name, `${folder.name} 폴더에 저장한 링크 모음`)
+    : pageMetadata("폴더");
 }
 
 async function FolderContent({ id }: { id: string }) {

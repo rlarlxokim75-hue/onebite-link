@@ -1,10 +1,8 @@
 import type { Metadata } from "next";
+import { defaultMetadata } from "@/lib/metadata";
 import "./globals.css";
 
-export const metadata: Metadata = {
-  title: "한입 링크",
-  description: "나만의 북마크를 폴더별로 관리하세요",
-};
+export const metadata: Metadata = defaultMetadata;
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (

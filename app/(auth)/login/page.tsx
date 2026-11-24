@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/metadata";
 import AuthCard from "@/components/auth/auth-card";
 import LoginForm from "@/components/auth/login-form";
 
-export const metadata: Metadata = {
-  title: "로그인 | 한입 링크",
-};
+export const metadata: Metadata = pageMetadata(
+  "로그인",
+  "한입 링크에 로그인하고 나만의 북마크를 관리하세요",
+);
 
 export default function LoginPage() {
   return (
