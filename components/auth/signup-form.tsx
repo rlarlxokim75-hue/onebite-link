@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useActionState, useState } from "react";
 import { signUp, type SignupState } from "@/app/actions";
 import Toast from "@/components/common/toast";
@@ -64,6 +65,13 @@ export default function SignupForm() {
         >
           {pending ? "가입 중…" : "회원가입"}
         </button>
+        <p className="text-center text-[13px] text-[var(--text-sub)]">
+          회원가입 시{" "}
+          <Link href="/privacy" className="link-hover underline">
+            개인정보 처리방침
+          </Link>
+          을 확인한 것으로 봅니다.
+        </p>
       </form>
     </>
   );

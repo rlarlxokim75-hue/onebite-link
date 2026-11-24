@@ -1,3 +1,4 @@
+import Link from "next/link";
 import type { Folder } from "@/lib/types";
 import SidebarItem from "./sidebar-item";
 import FolderList from "./folder-list";
@@ -17,6 +18,12 @@ export default function Sidebar({ folders, totalCount, countByFolder }: Props) {
         <FolderList folders={folders} countByFolder={countByFolder} />
       </nav>
       <LogoutButton />
+      <Link
+        href="/privacy"
+        className="link-hover mt-1 block px-3 py-2 text-[13px] text-[var(--text-sub)]"
+      >
+        개인정보 처리방침
+      </Link>
     </aside>
   );
 }
